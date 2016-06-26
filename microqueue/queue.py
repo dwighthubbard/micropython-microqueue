@@ -3,17 +3,18 @@ try:
 except ImportError:
     import json
 
-import uredis_modular.list
-
 
 class MicroQueue(object):
-    def __init__(self, name, host=None, port=6379, redis=None):
+    def __init__(self, name=None, host=None, port=6379, redis=None):
         self.__connection = redis
+        if not name:
+            name = 'defaultqueue'
         if not host:
             host = '127.0.0.1'
         if not redis:
+            from uredis_modular.list import List
             if host:
-                self.__connection = uredis_modular.list.List(host, port)
+                self.__connection = List(host, port)
         self.name = name
         self.key_name = 'hotqueue:' + name
 
