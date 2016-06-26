@@ -15,7 +15,7 @@ class MicroQueue(object):
             if host:
                 self.__connection = uredis_modular.list.List(host, port)
         self.name = name
-        self.key_name = 'microqueue:' + name
+        self.key_name = 'hotqueue:' + name
 
     def clear(self):
         """ Clear the Queue """
@@ -32,12 +32,10 @@ class MicroQueue(object):
         **kwargs
         """
         kwargs.setdefault('block', True)
-        while True:
+        message = self.get(**kwargs)
+        while message:
+            yield message
             message = self.get(**kwargs)
-            if message is None:
-                break
-            # yield message
-            return message
 
     def get(self, block=False, timeout=0):
         """
@@ -77,3 +75,13 @@ class MicroQueue(object):
         """
         messages = [json.dumps(m) for m in messages]
         self.__connection.rpush(self.key_name, *messages)
+
+    def worker(self, *args, **kwargs):
+        def decorator(worker):
+            def wrapper(*args):
+                for msg in self.consume(**kwargs):
+                    worker(*args + (msg,))
+            return wrapper
+        if args:
+            return decorator(*args)
+        return decorator
