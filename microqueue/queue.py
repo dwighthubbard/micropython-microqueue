@@ -61,9 +61,9 @@ class MicroQueue(object):
             if message is not None:
                 message = message[1]
         else:
-            message = self.__connection.lpop(self.key_name).decode()
+            message = self.__connection.lpop(self.key_name)
         if message:
-            message = json.loads(message)
+            message = json.loads(message.decode())
         return message
 
     def put(self, *messages):

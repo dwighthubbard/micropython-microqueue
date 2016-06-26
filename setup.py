@@ -17,6 +17,6 @@ setup(
     maintainer='Dwight Hubbard',
     maintainer_email='dwight@dwighthubbard.com',
     packages=['microqueue'],
-    version='0.0.2',
+    version='0.0.3',
     zip_safe=True,
 )
