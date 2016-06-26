@@ -3,16 +3,25 @@ try:
 except ImportError:
     import json
 
+import uredis_modular.list
+
 
 class MicroQueue(object):
-    def __init__(self, name, connection):
-        self.__connection = connection
+    def __init__(self, name, host=None, port=6379, redis=None):
+        self.__connection = redis
+        if not host:
+            host = '127.0.0.1'
+        if not redis:
+            if host:
+                self.__connection = uredis_modular.list.List(host, port)
         self.name = name
         self.key_name = 'microqueue:' + name
 
     def clear(self):
         """ Clear the Queue """
-        self.__connection.delete(self.key_name)
+        # We send this directly with the client API so we don't waste memory
+        # pulling in the entire Key command group.
+        self.__connection.execute_command('DEL', self.key_name.encode())
 
     def consume(self, **kwargs):
         """
@@ -27,7 +36,8 @@ class MicroQueue(object):
             message = self.get(**kwargs)
             if message is None:
                 break
-            yield message
+            # yield message
+            return message
 
     def get(self, block=False, timeout=0):
         """
@@ -51,7 +61,7 @@ class MicroQueue(object):
             if message is not None:
                 message = message[1]
         else:
-            message = self.__connection.lpop(self.key_name)
+            message = self.__connection.lpop(self.key_name).decode()
         if message:
             message = json.loads(message)
         return message

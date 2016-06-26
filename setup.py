@@ -12,11 +12,11 @@ setup(
     url='https://github.com/dhubbard/micropython-redis',
     author='Dwight Hubbard',
     author_email="dwight@dwighthubbard.com",
-    install_requires=['micropython-redis-modular'],
+    install_requires=['micropython-redis.list'],
     license='MIT',
     maintainer='Dwight Hubbard',
     maintainer_email='dwight@dwighthubbard.com',
     packages=['microqueue'],
-    version='0.0.51',
+    version='0.0.2',
     zip_safe=True,
 )
