@@ -1,4 +1,10 @@
 # Usage
+The microqueue module creates queues that are stored in redis lists.  In
+order to establish a queue you will need a running redis server.
+
+If the redis server host and port are not specified and the bootconfig
+module was used to configure the device with a redis_server and
+redis_port, that redis server willl be used by default.
 
 ## Creating a queue worker on an esp8266
 

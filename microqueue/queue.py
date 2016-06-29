@@ -7,11 +7,18 @@ class MicroQueue(object):
         if not name:
             name = 'defaultqueue'
         if not host:
-            host = '127.0.0.1'
+            try:
+                from bootconfig.config import get
+                host = get('redis_server')
+                if port==6379:
+                    port = get('redis_port')
+                del get
+            except ImportError:
+                pass
         if not redis:
-            from uredis_modular.list import List
+            from uredis_modular.client import Client
             if host:
-                self.__connection = List(host, port)
+                self.__connection = Client(host, port)
         self.name = name
         self.key_name = 'hotqueue:' + name
 
@@ -53,11 +60,11 @@ class MicroQueue(object):
             The deserialized object from the queue
         """
         if block:
-            message = self.__connection.blpop(self.key_name, timeout=timeout)
+            message = self.__connection.execute_command('BLPOP', self.key_name.encode(), timeout)
             if message is not None:
                 message = message[1]
         else:
-            message = self.__connection.lpop(self.key_name)
+            message = self.__connection.execute_command('LPOP', self.key_name.encode())
         if message:
             message = json.loads(message.decode())
         return message
@@ -72,7 +79,7 @@ class MicroQueue(object):
             Messages to put on the queue
         """
         messages = [json.dumps(m) for m in messages]
-        self.__connection.rpush(self.key_name, *messages)
+        self.__connection.execute_command('RPUSH', self.key_name.encode(), *messages)
 
     def worker(self, *args, **kwargs):
         def decorator(worker):

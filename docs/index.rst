@@ -10,7 +10,7 @@ Table of Contents
 
    install.md
    usage.md
-
+   resource_usage.md
 
 Indices and tables
 ******************
